@@ -1,7 +1,3 @@
-output "random_id" {
-  value = "${random_id.uuid.hex}"
-}
-
-output "environment" {
-  value = "${local.environment_upper}"
+output "nginx_ip" {
+  value = "${aws_instance.nginx.public_ip}"
 }
