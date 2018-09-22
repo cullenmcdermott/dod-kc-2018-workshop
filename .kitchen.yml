@@ -9,14 +9,29 @@ provisioner:
 platforms:
   - name: test
 
-transport:
-  name: ssh
-
 verifier:
   name: terraform
   format: documentation
-  groups:
-    - name: default
+  systems:
+    - name: remote
+      controls:
+        - remote
+      show_progress: true
+      backend: ssh
+      hosts_output: nginx_ip
+      user: ubuntu
+      key_files:
+        - test/fixtures/default/keys/key
+    - name: aws
+      controls:
+        - aws
+      backend: aws
+      show_progress: true
+    - name: local
+      controls:
+        - local
+      backend: local
+      show_progress: true
 
 suites:
   - name: default

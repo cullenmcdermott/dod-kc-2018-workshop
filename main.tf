@@ -3,7 +3,7 @@ provider "aws" {
 }
 
 resource "aws_security_group" "nginx" {
-  name   = "nginx"
+  name   = "cullen-nginx"
   vpc_id = "${data.aws_subnet.current.vpc_id}"
 
   egress {
@@ -23,14 +23,14 @@ resource "aws_security_group" "nginx" {
 
 resource "aws_instance" "nginx" {
   ami                         = "${data.aws_ami.ubuntu_16.id}"
-  instance_type               = "t3.micro"
+  instance_type               = "t2.micro"
   subnet_id                   = "${var.subnet_ids[0]}"
   vpc_security_group_ids      = ["${aws_security_group.nginx.id}"]
   associate_public_ip_address = true
   key_name                    = "${var.key_pair_name}"
 
   tags {
-    Name = "Nginx"
+    Name = "cullen-nginx"
   }
 
   user_data = <<EOF
@@ -42,14 +42,14 @@ EOF
 }
 
 resource "aws_lb" "nginx" {
-  name               = "nginx"
+  name               = "cullen-nginx"
   load_balancer_type = "application"
   security_groups    = ["${aws_security_group.nginx.id}"]
   subnets            = ["${var.subnet_ids}"]
 }
 
 resource "aws_lb_target_group" "nginx" {
-  name     = "nginx-tg"
+  name     = "cullen-nginx-tg"
   port     = 80
   protocol = "HTTP"
   vpc_id   = "${data.aws_subnet.current.vpc_id}"
