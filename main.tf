@@ -2,9 +2,11 @@ provider "aws" {
   region = "us-west-2"
 }
 
+resource "random_pet" "pet" {}
+
 resource "aws_security_group" "nginx" {
-  name   = "cullen-nginx"
-  vpc_id = "${data.aws_subnet.current.vpc_id}"
+  name   = "${random_pet.pet.id}-nginx"
+  vpc_id = "${var.vpc_id}"
 
   egress {
     from_port   = 0
@@ -24,13 +26,13 @@ resource "aws_security_group" "nginx" {
 resource "aws_instance" "nginx" {
   ami                         = "${data.aws_ami.ubuntu_16.id}"
   instance_type               = "t2.micro"
-  subnet_id                   = "${var.subnet_ids[0]}"
+  subnet_id                   = "${data.aws_subnet_ids.current.ids[0]}"
   vpc_security_group_ids      = ["${aws_security_group.nginx.id}"]
   associate_public_ip_address = true
   key_name                    = "${var.key_pair_name}"
 
   tags {
-    Name = "cullen-nginx"
+    Name = "${random_pet.pet.id}-nginx"
   }
 
   user_data = <<EOF
@@ -42,17 +44,17 @@ EOF
 }
 
 resource "aws_lb" "nginx" {
-  name               = "cullen-nginx"
+  name               = "${random_pet.pet.id}-nginx"
   load_balancer_type = "application"
   security_groups    = ["${aws_security_group.nginx.id}"]
-  subnets            = ["${var.subnet_ids}"]
+  subnets            = ["${data.aws_subnet_ids.current.ids}"]
 }
 
 resource "aws_lb_target_group" "nginx" {
-  name     = "cullen-nginx-tg"
+  name     = "${random_pet.pet.id}-nginx-tg"
   port     = 80
   protocol = "HTTP"
-  vpc_id   = "${data.aws_subnet.current.vpc_id}"
+  vpc_id   = "${var.vpc_id}"
 }
 
 resource "aws_lb_target_group_attachment" "nginx" {
@@ -90,7 +92,7 @@ resource "aws_lb_listener" "nginx_80" {
 }
 
 resource "aws_acm_certificate" "cert" {
-  domain_name       = "test.${var.route53_zone_name}"
+  domain_name       = "${random_pet.pet.id}.${var.route53_zone_name}"
   validation_method = "DNS"
 
   lifecycle {
@@ -99,7 +101,7 @@ resource "aws_acm_certificate" "cert" {
 }
 
 resource "aws_route53_record" "nginx" {
-  name    = "test.${var.route53_zone_name}"
+  name    = "${random_pet.pet.id}.${var.route53_zone_name}"
   type    = "CNAME"
   zone_id = "${data.aws_route53_zone.this.id}"
   records = ["${aws_lb.nginx.dns_name}"]

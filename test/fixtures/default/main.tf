@@ -1,7 +1,6 @@
 module "nginx" {
   source            = "../../.."
   vpc_id            = "${data.aws_vpc.current.id}"
-  subnet_ids        = ["${data.aws_subnet_ids.dod.ids[0]}", "${data.aws_subnet_ids.dod.ids[2]}"]
   route53_zone_name = "aws.cullenmcdermott.com"
   key_pair_name     = "${aws_key_pair.nginx.key_name}"
 }
@@ -10,10 +9,6 @@ data "aws_vpc" "current" {
   tags {
     Name = "devopsdays-vpc"
   }
-}
-
-data "aws_subnet_ids" "dod" {
-  vpc_id = "${data.aws_vpc.current.id}"
 }
 
 provider "aws" {
@@ -31,4 +26,8 @@ output "nginx_ip" {
 
 output "dns_endpoint" {
   value = "${module.nginx.dns_endpoint}"
+}
+
+output "random_pet" {
+  value = "${module.nginx.random_pet}"
 }

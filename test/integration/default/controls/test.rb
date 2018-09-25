@@ -1,4 +1,6 @@
 dns_endpoint = attribute('dns_endpoint', {})
+random_pet = attribute('random_pet', {})
+ENV['AWS_REGION'] = 'us-west-2'
 
 control 'remote' do
   describe service 'nginx' do
@@ -9,7 +11,7 @@ control 'remote' do
     it { should be_installed }
   end
 
-  describe host('test.aws.cullenmcdermott.com', port: 80, protocol: 'http') do
+  describe host(dns_endpoint, port: 80, protocol: 'http') do
     it { should be_reachable }
     it { should be_resolvable }
   end
@@ -27,11 +29,11 @@ control 'local' do
 end
 
 control 'aws' do
-  describe aws_ec2_instance(name: 'cullen-nginx') do
+  describe aws_ec2_instance(name: "#{random_pet}-nginx") do
     it { should be_running }
   end
 
-  describe aws_security_group(group_name: 'cullen-nginx') do
+  describe aws_security_group(group_name: "#{random_pet}-nginx") do
     it { should exist }
   end
 end

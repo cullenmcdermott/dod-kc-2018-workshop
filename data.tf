@@ -11,6 +11,6 @@ data "aws_ami" "ubuntu_16" {
   }
 }
 
-data "aws_subnet" "current" {
-  id = "${var.subnet_ids[0]}"
+data "aws_subnet_ids" "current" {
+  vpc_id = "${var.vpc_id}"
 }
