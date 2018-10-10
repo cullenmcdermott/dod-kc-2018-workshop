@@ -1,7 +1,7 @@
 module "nginx" {
   source            = "../../.."
   vpc_id            = "${data.aws_vpc.current.id}"
-  route53_zone_name = "aws.cullenmcdermott.com"
+  route53_zone_name = "devopsdays.cool"
   key_pair_name     = "${aws_key_pair.nginx.key_name}"
 }
 
